@@ -55,11 +55,9 @@ module.exports = (dragoman) ->
   # A value in the stream needs to be the specified value (For static values)
   dragoman.register 'is',
     read: (buf, value) ->
-      console.log 'Value:', value
       data = buf.consume(value.length)
       if not bufferEqual(data, value)
         throw new Error "Expected '#{value}' but got '#{data}' :-("
       return undefined
     write: (vars, value) ->
-      console.log 'Value:', value
       return value

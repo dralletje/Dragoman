@@ -70,7 +70,6 @@ module.exports = function(dragoman) {
   return dragoman.register('is', {
     read: function(buf, value) {
       var data;
-      console.log('Value:', value);
       data = buf.consume(value.length);
       if (!bufferEqual(data, value)) {
         throw new Error("Expected '" + value + "' but got '" + data + "' :-(");
@@ -78,7 +77,6 @@ module.exports = function(dragoman) {
       return void 0;
     },
     write: function(vars, value) {
-      console.log('Value:', value);
       return value;
     }
   });

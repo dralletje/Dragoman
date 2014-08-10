@@ -40,8 +40,6 @@ module.exports = class Reader
     fn this, args...
     if len?
       if @full().length isnt 0
-        console.log @full()
-        console.log @vars
         throw new Error 'Buffer not fully consumed, hmmm'
       @boxes.pop()
 

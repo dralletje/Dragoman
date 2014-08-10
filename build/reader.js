@@ -64,8 +64,6 @@ module.exports = Reader = (function() {
     fn.apply(null, [this].concat(__slice.call(args)));
     if (len != null) {
       if (this.full().length !== 0) {
-        console.log(this.full());
-        console.log(this.vars);
         throw new Error('Buffer not fully consumed, hmmm');
       }
       this.boxes.pop();

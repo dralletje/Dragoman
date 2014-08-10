@@ -1,6 +1,6 @@
 {
   "name": "dragoman",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Helps you talk to folks speaking a different language",
   "main": "index.js",
   "directories": {

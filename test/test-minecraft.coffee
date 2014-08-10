@@ -1,8 +1,45 @@
+# Test setup
+chai = require 'chai'
+should = chai.should()
+expect = chai.expect
+chai.use require 'chai-as-promised'
+
+# Dragoman setup
+Dragoman = require '../'
+minecraftProtocol = require "./minecraft-interface"
+
+dragoman = new Dragoman
+{client, server} = packets = dragoman.compile minecraftProtocol
+
+# Begin of minecraft tests
 net = require 'net'
 Promise = require 'bluebird'
-varint = require('varint')
 
-# :-D
+describe "Minecraft", ->
+  it "should create and validate a handshake", ->
+    # Create
+    # TODO: Make the packet have the 0x00 required itself
+    [host, port] = ['deserver.tk', 25565]
+    args = [4, host, port, 1]
+    handshake = client.handshake.build args...
+    # Validate
+    client.handshake.extract(handshake).should.deep.equal args
+
+    socket = net.connect
+      port: port
+      host: host
+
+    .on 'connect', ->
+      @write handshake
+      @write new Buffer [1, 0] # State 1 status request
+
+    .suck().then (response) ->
+      # JSON response
+      console.log 'TEST:', server.state1[0x00].extract(response)
+      info = JSON.parse server.state1[0x00].extract(response)[0]
+
+
+## Additions for awesomeness :-D
 EventEmitter = require('events').EventEmitter
 EventEmitter::waitFor = (event) ->
   new Promise (resolve, reject) =>
@@ -12,47 +49,8 @@ EventEmitter::waitFor = (event) ->
       reject err
 
 ReadableStream = require('stream').Readable
-ReadableStream::suck = () ->
-  @waitFor('readable').then () =>
+ReadableStream::suck = ->
+  @waitFor('readable').then =>
     data = @read()
     if not data? then throw new Error 'Hey, your stream had ended!'
     data
-
-minecraftString = (string) ->
-  Buffer.concat [new Buffer(varint.encode string.length), new Buffer string]
-
-module.exports.ping = (host, port=25565) ->
-  server = net.connect
-    port: port
-    host: host
-
-  server.on 'connect', ->
-    packetId   = new Buffer varint.encode 0
-    version    = new Buffer varint.encode 4
-    hostString = minecraftString host
-    portString = new Buffer 2
-    portString.writeUInt16BE port, 0
-    state      = new Buffer varint.encode 1
-
-    data = Buffer.concat [packetId, version, hostString, portString, state]
-    @write Buffer.concat [new Buffer(varint.encode data.length), data]
-    @write new Buffer [1, 0]
-
-  .suck().then (res) ->
-    console.log '^^'
-    if res[0] isnt 255
-      throw new Error "No motd recieved!"
-    res = res.slice 1
-
-    length = res[1]
-    res = res.slice 1
-
-    motd = res.slice 0, length
-    res = res.slice length
-    console.log motd.toString()
-
-    console.log res.slice(3).toString()
-
-if not module.parent
-  console.log process.argv[2], process.argv[3]
-  module.exports.ping process.argv[2], process.argv[3]

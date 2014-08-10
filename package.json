@@ -18,6 +18,8 @@
   "author": "Michiel Dral <m.c.dral@gmail.com>",
   "license": "GPL v2",
   "devDependencies": {
+    "chai": "^1.9.1",
+    "chai-as-promised": "^4.1.1",
     "coffee-script": "^1.7.1",
     "gulp": "^3.8.7",
     "gulp-coffee": "^2.1.1",
@@ -28,6 +30,8 @@
   },
   "dependencies": {
     "bluebird": "^2.2.2",
+    "buffer-equal": "0.0.1",
+    "symbol": "^0.2.1",
     "varint": "^3.0.1"
   }
 }

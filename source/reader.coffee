@@ -8,6 +8,7 @@ Symbol = require 'symbol'
 
 # Symbol to access the methods
 _methods = new Symbol 'Methods to read explorer the buffer.'
+_getUsing = new Symbol 'The internal _getUsing method.'
 
 module.exports = class Reader
   constructor: (buffer, @opts) ->
@@ -80,7 +81,7 @@ module.exports = class Reader
   # Invoked by the compiled function, well, indirectly.
   # They are invoked with .<method>(args...) and then passed here.
   # It just executes the code linked to that method
-  _getUsing: (method, args) ->
+  @::[_getUsing] = (method, args) ->
     v = @[_methods][method].read this, args...
     if v? and v isnt this
       @vars.push v
@@ -96,7 +97,7 @@ module.exports = class Reader
       if ExtendedReader::[method]?
         throw new Error "Trying to overwrite '#{method}', but it already exists!"
       ExtendedReader::[method] = (args...) ->
-        @_getUsing method, args
+        @[_getUsing] method, args
     ExtendedReader::[_methods] = methods
 
     return ExtendedReader

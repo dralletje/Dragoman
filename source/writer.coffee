@@ -2,6 +2,7 @@ Symbol = require 'symbol'
 
 # Symbol to access the methods
 _methods = new Symbol 'Methods to alter the buffer.'
+_alter = new Symbol 'Internal alter method.'
 
 module.exports = class Writer
   constructor: (variables) ->
@@ -32,7 +33,7 @@ module.exports = class Writer
     fn this, args...
     @delBox()
 
-  alter: (method, args) ->
+  @::[_alter] = (method, args) ->
     buf = @[_methods][method].write this, args...
     if buf instanceof Buffer
       @box().buffer.push buf
@@ -44,13 +45,13 @@ module.exports = class Writer
 
   @extend: (methods) ->
     # Extend the methods allowed to use on the writer
-    class ExtendedWriter extends Writer
+    class ExtendedWriter extends this
 
     Object.keys(methods).forEach (method) ->
       if ExtendedWriter::[method]?
         throw new Error "Trying to overwrite '#{method}', but it already exists!"
       ExtendedWriter::[method] = (args...) ->
-        @alter method, args
+        @[_alter] method, args
     ExtendedWriter::[_methods] = methods
 
     return ExtendedWriter

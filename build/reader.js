@@ -5,7 +5,7 @@
  * will destroy all bytes your read, so you can
  * can keep reading from the start.
  */
-var Reader, Symbol, _methods,
+var Reader, Symbol, _getUsing, _methods,
   __slice = [].slice,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -13,6 +13,8 @@ var Reader, Symbol, _methods,
 Symbol = require('symbol');
 
 _methods = new Symbol('Methods to read explorer the buffer.');
+
+_getUsing = new Symbol('The internal _getUsing method.');
 
 module.exports = Reader = (function() {
   function Reader(buffer, opts) {
@@ -103,7 +105,7 @@ module.exports = Reader = (function() {
     return this.vars.pop();
   };
 
-  Reader.prototype._getUsing = function(method, args) {
+  Reader.prototype[_getUsing] = function(method, args) {
     var v, _ref;
     v = (_ref = this[_methods][method]).read.apply(_ref, [this].concat(__slice.call(args)));
     if ((v != null) && v !== this) {
@@ -131,7 +133,7 @@ module.exports = Reader = (function() {
       return ExtendedReader.prototype[method] = function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        return this._getUsing(method, args);
+        return this[_getUsing](method, args);
       };
     });
     ExtendedReader.prototype[_methods] = methods;

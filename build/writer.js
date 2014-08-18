@@ -1,5 +1,5 @@
 // Dragoman translator by Michiel Dral 
-var Symbol, Writer, _methods,
+var Symbol, Writer, _alter, _methods,
   __slice = [].slice,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -7,6 +7,8 @@ var Symbol, Writer, _methods,
 Symbol = require('symbol');
 
 _methods = new Symbol('Methods to alter the buffer.');
+
+_alter = new Symbol('Internal alter method.');
 
 module.exports = Writer = (function() {
   function Writer(variables) {
@@ -46,7 +48,7 @@ module.exports = Writer = (function() {
     return this.delBox();
   };
 
-  Writer.prototype.alter = function(method, args) {
+  Writer.prototype[_alter] = function(method, args) {
     var buf, _ref;
     buf = (_ref = this[_methods][method]).write.apply(_ref, [this].concat(__slice.call(args)));
     if (buf instanceof Buffer) {
@@ -70,7 +72,7 @@ module.exports = Writer = (function() {
 
       return ExtendedWriter;
 
-    })(Writer);
+    })(this);
     Object.keys(methods).forEach(function(method) {
       if (ExtendedWriter.prototype[method] != null) {
         throw new Error("Trying to overwrite '" + method + "', but it already exists!");
@@ -78,7 +80,7 @@ module.exports = Writer = (function() {
       return ExtendedWriter.prototype[method] = function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        return this.alter(method, args);
+        return this[_alter](method, args);
       };
     });
     ExtendedWriter.prototype[_methods] = methods;

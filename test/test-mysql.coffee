@@ -26,11 +26,12 @@ connection.end();
 
 unpack = (packet, response, to) ->
   info = packet.extract response
-  console.log info.slice 0, -1
+  #console.log info.slice 0, -1
   newres = packet.build info...
   response.should.deep.equal newres
   to.write newres
   to.suck()
+
 describe "Mysql", ->
   it 'should get connection from localmysql', ->
     new Promise (yell, cry) =>
@@ -60,7 +61,7 @@ describe "Mysql", ->
       unpack packets.handshakeResponse41, response, @socketToServer
 
     .then (response) =>
-      console.log response
+      #console.log response
 
   after ->
     @server.close()

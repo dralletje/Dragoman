@@ -37,6 +37,9 @@ describe "Minecraft", ->
       # JSON response
       info = JSON.parse server.state1[0x00].extract(response)[0]
 
+    .catch ((err) -> err.code is 'ENOTFOUND'), (err) ->
+      console.log 'Can not connect to the minecraft server.'
+
 
 ## Additions for awesomeness :-D
 EventEmitter = require('events').EventEmitter

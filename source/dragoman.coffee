@@ -5,7 +5,9 @@ Writer = require "./writer"
 Reader = require "./reader"
 
 module.exports = class Dragoman
-  constructor: ->
+  constructor: (@opts={}) ->
+    # Several options
+    {strict, debug} = @opts
     # {Name: {read: fn*, write: fn*}}
     @parsers = {}
     # Register the basics
@@ -29,6 +31,6 @@ module.exports = class Dragoman
 
   # Get writer and reader instances
   getWriter: (thing) ->
-    new (Writer.extend(@parsers)) thing
+    new (Writer.extend(@parsers)) thing, @opts
   getReader: (thing) ->
-    new (Reader.extend(@parsers)) thing
+    new (Reader.extend(@parsers)) thing, @opts

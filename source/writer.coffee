@@ -5,23 +5,29 @@ _methods = new Symbol 'Methods to alter the buffer.'
 
 module.exports = class Writer
   constructor: (variables) ->
-    @variables = variables
-    @bufs = []
     @boxes = []
+    # Root box
+    @boxes.push
+      buffer: []
+      vars: variables
 
   # Use a variable from the variables
   getVar: ->
-    @variables.shift()
+    @box().vars.shift()
   shift: @::getVar
 
 
   # Sanboxing of data
-  newBox: ->
-    @boxes.push []
+  box: ->
+    @boxes[@boxes.length - 1]
+  newBox: (vars) ->
+    @boxes.push
+      buffer: []
+      vars: vars or @box().vars
   delBox: ->
-    Buffer.concat @boxes.pop()
-  capture: (fn) ->
-    @newBox()
+    Buffer.concat @boxes.pop().buffer
+  capture: (fn, vars) ->
+    @newBox(vars)
     args = fn._arguments or []
     fn this, args...
     @delBox()
@@ -29,13 +35,12 @@ module.exports = class Writer
   alter: (method, args) ->
     buf = @[_methods][method].write this, args...
     if buf instanceof Buffer
-      # If a box is set, write to it. Else write to 'root box'
-      box = @boxes[@boxes.length - 1] ?= @bufs
-      box.push buf
+      @box().buffer.push buf
     this # Chaining
 
   flush: ->
     # No idea why I made this.. ^^
+    return this
 
   @extend: (methods) ->
     # Extend the methods allowed to use on the writer

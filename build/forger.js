@@ -13,7 +13,7 @@ module.exports = Forger = (function() {
   }
 
   Forger.prototype.compile = function() {
-    var i, variablesString;
+    var e, i, variablesString;
     variablesString = 'buffer' + ((function() {
       var _i, _ref, _results;
       _results = [];
@@ -21,8 +21,13 @@ module.exports = Forger = (function() {
         _results.push(', _v' + (i + 1));
       }
       return _results;
-    }).call(this));
-    this.bytecode || (this.bytecode = new Function(variablesString, "return buffer" + this.fn + ".flush()"));
+    }).call(this)).join('');
+    try {
+      this.bytecode || (this.bytecode = new Function(variablesString, "return buffer" + this.fn + ".flush()"));
+    } catch (_error) {
+      e = _error;
+      throw new Error("Couldn\'t compile function: " + e.message + "\n(" + variablesString + ") -> \n  return buffer" + this.fn + ".flush()\"");
+    }
     this.bytecode._arguments = this.variables;
     return this.bytecode;
   };
@@ -31,6 +36,9 @@ module.exports = Forger = (function() {
     var argNames;
     argNames = args.map(this.compileArgument).map((function(_this) {
       return function(arg) {
+        if (['string', 'number'].indexOf(typeof arg) !== -1) {
+          return JSON.stringify(arg);
+        }
         _this.variables.push(arg);
         return '_v' + _this.variables.length;
       };

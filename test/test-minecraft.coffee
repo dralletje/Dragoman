@@ -35,7 +35,6 @@ describe "Minecraft", ->
 
     .suck().then (response) ->
       # JSON response
-      console.log 'TEST:', server.state1[0x00].extract(response)
       info = JSON.parse server.state1[0x00].extract(response)[0]
 
 

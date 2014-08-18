@@ -10,44 +10,54 @@ _methods = new Symbol('Methods to alter the buffer.');
 
 module.exports = Writer = (function() {
   function Writer(variables) {
-    this.variables = variables;
-    this.bufs = [];
     this.boxes = [];
+    this.boxes.push({
+      buffer: [],
+      vars: variables
+    });
   }
 
   Writer.prototype.getVar = function() {
-    return this.variables.shift();
+    return this.box().vars.shift();
   };
 
   Writer.prototype.shift = Writer.prototype.getVar;
 
-  Writer.prototype.newBox = function() {
-    return this.boxes.push([]);
+  Writer.prototype.box = function() {
+    return this.boxes[this.boxes.length - 1];
+  };
+
+  Writer.prototype.newBox = function(vars) {
+    return this.boxes.push({
+      buffer: [],
+      vars: vars || this.box().vars
+    });
   };
 
   Writer.prototype.delBox = function() {
-    return Buffer.concat(this.boxes.pop());
+    return Buffer.concat(this.boxes.pop().buffer);
   };
 
-  Writer.prototype.capture = function(fn) {
+  Writer.prototype.capture = function(fn, vars) {
     var args;
-    this.newBox();
+    this.newBox(vars);
     args = fn._arguments || [];
     fn.apply(null, [this].concat(__slice.call(args)));
     return this.delBox();
   };
 
   Writer.prototype.alter = function(method, args) {
-    var box, buf, _base, _name, _ref;
+    var buf, _ref;
     buf = (_ref = this[_methods][method]).write.apply(_ref, [this].concat(__slice.call(args)));
     if (buf instanceof Buffer) {
-      box = (_base = this.boxes)[_name = this.boxes.length - 1] != null ? _base[_name] : _base[_name] = this.bufs;
-      box.push(buf);
+      this.box().buffer.push(buf);
     }
     return this;
   };
 
-  Writer.prototype.flush = function() {};
+  Writer.prototype.flush = function() {
+    return this;
+  };
 
   Writer.extend = function(methods) {
     var ExtendedWriter;

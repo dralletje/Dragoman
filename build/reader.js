@@ -12,13 +12,17 @@ var Reader, Symbol, _methods,
 
 Symbol = require('symbol');
 
-_methods = new Symbol('Methods to rea the buffer.');
+_methods = new Symbol('Methods to read explorer the buffer.');
 
 module.exports = Reader = (function() {
-  function Reader(buffer) {
+  function Reader(buffer, opts) {
+    this.opts = opts;
     this.boxes = [buffer];
     this.vars = [];
   }
+
+
+  /* Use bytes from the buffer */
 
   Reader.prototype.trash = function(len) {
     if (len == null) {
@@ -54,6 +58,26 @@ module.exports = Reader = (function() {
     return f;
   };
 
+  Reader.prototype.seek = function(fn) {
+    var byte, i, place, _fn, _i, _len, _ref;
+    if (!(fn instanceof Function)) {
+      _fn = fn;
+      fn = function(k) {
+        return k === _fn;
+      };
+    }
+    place = 0;
+    _ref = this.full();
+    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+      byte = _ref[i];
+      if (fn(byte)) {
+        break;
+      }
+      place++;
+    }
+    return place;
+  };
+
   Reader.prototype.scan = function(fn, len) {
     var args;
     if (len != null) {
@@ -62,22 +86,24 @@ module.exports = Reader = (function() {
     }
     args = fn._arguments || [];
     fn.apply(null, [this].concat(__slice.call(args)));
+    if (this.full().length !== 0 && !this.opts.strict) {
+      throw new Error('Buffer not fully consumed, hmmm');
+    }
     if (len != null) {
-      if (this.full().length !== 0) {
-        throw new Error('Buffer not fully consumed, hmmm');
-      }
       this.boxes.pop();
     }
     return this.vars;
   };
 
-  Reader.prototype.flush = function() {};
+  Reader.prototype.flush = function() {
+    return this;
+  };
 
   Reader.prototype.claim = function() {
     return this.vars.pop();
   };
 
-  Reader.prototype.getUsing = function(method, args) {
+  Reader.prototype._getUsing = function(method, args) {
     var v, _ref;
     v = (_ref = this[_methods][method]).read.apply(_ref, [this].concat(__slice.call(args)));
     if ((v != null) && v !== this) {
@@ -105,7 +131,7 @@ module.exports = Reader = (function() {
       return ExtendedReader.prototype[method] = function() {
         var args;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        return this.getUsing(method, args);
+        return this._getUsing(method, args);
       };
     });
     ExtendedReader.prototype[_methods] = methods;

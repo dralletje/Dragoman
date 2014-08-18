@@ -8,15 +8,25 @@ module.exports = class Forger
   # Compile this object into a function
   compile: ->
     # Create variable string eg: (buffer, v1, v2, v3) { ... }
-    variablesString = 'buffer' + (', _v'+(i+1) for i in [0...@variables.length])
-    @bytecode ||=
-      new Function variablesString, "return buffer#{@fn}.flush()"
+    variablesString = 'buffer' + (', _v'+(i+1) for i in [0...@variables.length]).join ''
+    try
+      @bytecode ||=
+        new Function variablesString, "return buffer#{@fn}.flush()"
+    catch e
+      throw new Error """
+        Couldn\'t compile function: #{e.message}
+        (#{variablesString}) -> \n  return buffer#{@fn}.flush()"
+      """
+
     @bytecode._arguments = @variables
     @bytecode
 
   # Add another function to the chain
   add: (method, args) ->
     argNames = args.map(@compileArgument).map (arg) =>
+      if ['string', 'number'].indexOf(typeof arg) isnt -1
+        return JSON.stringify arg
+
       @variables.push arg
       '_v' + @variables.length
     @fn += ".#{method}(#{argNames.join(', ')})"

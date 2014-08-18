@@ -10,7 +10,10 @@ Writer = require("./writer");
 Reader = require("./reader");
 
 module.exports = Dragoman = (function() {
-  function Dragoman() {
+  function Dragoman(opts) {
+    var debug, strict, _ref;
+    this.opts = opts != null ? opts : {};
+    _ref = this.opts, strict = _ref.strict, debug = _ref.debug;
     this.parsers = {};
     this["with"](basics);
   }
@@ -35,11 +38,11 @@ module.exports = Dragoman = (function() {
   };
 
   Dragoman.prototype.getWriter = function(thing) {
-    return new (Writer.extend(this.parsers))(thing);
+    return new (Writer.extend(this.parsers))(thing, this.opts);
   };
 
   Dragoman.prototype.getReader = function(thing) {
-    return new (Reader.extend(this.parsers))(thing);
+    return new (Reader.extend(this.parsers))(thing, this.opts);
   };
 
   return Dragoman;

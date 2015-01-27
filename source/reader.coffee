@@ -62,7 +62,10 @@ module.exports = class Reader
 
     # If the buffer is not fully consumed, let them know
     if @full().length isnt 0 and not @opts.strict
-      throw new Error 'Buffer not fully consumed, hmmm'
+      err = new Error 'Buffer not fully consumed, hmmm'
+      err.rest = @full()
+      err.result = @vars
+      throw err
     # If it was a new box, remove the box (it should be empty)
     if len?
       @boxes.pop()

@@ -64,7 +64,11 @@ module.exports = class Reader
     fn this, args...
 
     # If the buffer is not fully consumed, let them know
-    if strictMode  and  @full().length isnt 0
+    full = @full()
+    if not strictMode
+      @vars.rest = full
+      
+    else if full.length isnt 0
       throw new Error 'Buffer not fully consumed, hmmm.'
 
     # If it was a new box, remove the box (it should be empty)

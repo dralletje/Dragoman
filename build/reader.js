@@ -81,7 +81,7 @@ module.exports = Reader = (function() {
   };
 
   Reader.prototype.scan = function(fn, len, strictMode) {
-    var args;
+    var args, full;
     if (strictMode == null) {
       strictMode = true;
     }
@@ -91,7 +91,10 @@ module.exports = Reader = (function() {
     }
     args = fn._arguments || [];
     fn.apply(null, [this].concat(__slice.call(args)));
-    if (strictMode && this.full().length !== 0) {
+    full = this.full();
+    if (!strictMode) {
+      this.vars.rest = full;
+    } else if (full.length !== 0) {
       throw new Error('Buffer not fully consumed, hmmm.');
     }
     if (len != null) {

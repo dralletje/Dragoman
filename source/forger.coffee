@@ -51,10 +51,10 @@ module.exports = class Forger
     fn = @compile()
     writer.capture(fn)
 
-  extract: (buffer) ->
+  extract: (buffer, strict) ->
     reader = @dragoman.getReader buffer
     fn = @compile()
-    reader.scan(fn)
+    reader.scan(fn, undefined, strict)
 
 
   @extend: (methods) ->

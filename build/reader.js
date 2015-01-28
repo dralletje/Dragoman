@@ -80,19 +80,19 @@ module.exports = Reader = (function() {
     return place;
   };
 
-  Reader.prototype.scan = function(fn, len) {
-    var args, err;
+  Reader.prototype.scan = function(fn, len, strictMode) {
+    var args;
+    if (strictMode == null) {
+      strictMode = true;
+    }
     if (len != null) {
       this.boxes.push(this.full().slice(0, len));
       this.boxes[this.boxes.length - 2] = this.boxes[this.boxes.length - 2].slice(len);
     }
     args = fn._arguments || [];
     fn.apply(null, [this].concat(__slice.call(args)));
-    if (this.full().length !== 0 && !this.opts.strict) {
-      err = new Error('Buffer not fully consumed, hmmm');
-      err.rest = this.full();
-      err.result = this.vars;
-      throw err;
+    if (strictMode && this.full().length !== 0) {
+      throw new Error('Buffer not fully consumed, hmmm.');
     }
     if (len != null) {
       this.boxes.pop();

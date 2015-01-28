@@ -46,8 +46,11 @@ module.exports = class Reader
       place++
     return place
 
-  # Start reading the buffer using fn
-  scan: (fn, len) ->
+  ## Start reading the buffer
+  # fn: Function that describes the buffer
+  # len (undefined): Only allow the function to this part of the buffer
+  # strictMode (true): Throw an error when the buffer is not fully consumed
+  scan: (fn, len, strictMode=true) ->
     # If it is to parse a slice, create new 'box'
     if len?
       # Create new box
@@ -61,11 +64,9 @@ module.exports = class Reader
     fn this, args...
 
     # If the buffer is not fully consumed, let them know
-    if @full().length isnt 0 and not @opts.strict
-      err = new Error 'Buffer not fully consumed, hmmm'
-      err.rest = @full()
-      err.result = @vars
-      throw err
+    if strictMode  and  @full().length isnt 0
+      throw new Error 'Buffer not fully consumed, hmmm.'
+
     # If it was a new box, remove the box (it should be empty)
     if len?
       @boxes.pop()

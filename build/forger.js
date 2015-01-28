@@ -74,11 +74,11 @@ module.exports = Forger = (function() {
     return writer.capture(fn);
   };
 
-  Forger.prototype.extract = function(buffer) {
+  Forger.prototype.extract = function(buffer, strict) {
     var fn, reader;
     reader = this.dragoman.getReader(buffer);
     fn = this.compile();
-    return reader.scan(fn);
+    return reader.scan(fn, void 0, strict);
   };
 
   Forger.extend = function(methods) {

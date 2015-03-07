@@ -27,7 +27,7 @@ connection.end();
 unpack = (packet, response, to) ->
   info = packet.extract response
   #console.log info.slice 0, -1
-  newres = packet.build info...
+  newres = packet.build info
   response.should.deep.equal newres
   to.write newres
   to.suck()

@@ -46,10 +46,15 @@ module.exports = class Forger
   ###
 
   # Build or extract the packet
-  build: (vars...) ->
-    writer = @dragoman.getWriter vars
+  build: (vars) ->
+    writer = @dragoman.getWriter vars.slice(0)
     fn = @compile()
-    writer.capture(fn)
+    res = writer.capture(fn)
+
+    if vars.rest?
+      Buffer.concat [res, vars.rest]
+    else
+      res
 
   extract: (buffer, strict) ->
     reader = @dragoman.getReader buffer

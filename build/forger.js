@@ -1,8 +1,8 @@
 // Dragoman translator by Michiel Dral 
 var Forger,
-  __slice = [].slice,
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  __slice = [].slice;
 
 module.exports = Forger = (function() {
   function Forger(dragoman, fn, variables) {
@@ -66,12 +66,16 @@ module.exports = Forger = (function() {
       new this.constructor @fn, @variables
    */
 
-  Forger.prototype.build = function() {
-    var fn, vars, writer;
-    vars = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    writer = this.dragoman.getWriter(vars);
+  Forger.prototype.build = function(vars) {
+    var fn, res, writer;
+    writer = this.dragoman.getWriter(vars.slice(0));
     fn = this.compile();
-    return writer.capture(fn);
+    res = writer.capture(fn);
+    if (vars.rest != null) {
+      return Buffer.concat([res, vars.rest]);
+    } else {
+      return res;
+    }
   };
 
   Forger.prototype.extract = function(buffer, strict) {

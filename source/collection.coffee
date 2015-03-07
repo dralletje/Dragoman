@@ -7,7 +7,7 @@ module.exports = (dragoman) ->
   dragoman.register 'varint',
     read: (buf) ->
       number = varint.decode buf.full() # Read first apearing varint
-      buf.trash varint.decode.bytes   # And remove used bytes from buffer
+      buf.trash varint.decode.bytes     # And remove used bytes from buffer
       number
     write: (vars) ->
       number = vars.shift()

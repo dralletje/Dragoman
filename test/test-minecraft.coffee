@@ -24,6 +24,8 @@ describe "Minecraft", ->
     args.rest = Buffer([0,1])
     handshake = client.handshake.build args
 
-    console.log args
+    buf = new Buffer [17, 0, 4, 11, 100, 101, 115, 101, 114, 118, 101, 114, 46, 116, 107, 99, 221, 1, 0, 1 ]
+
     # Validate
+    handshake.should.deep.equal buf
     client.handshake.extract(handshake, false).should.deep.equal args
